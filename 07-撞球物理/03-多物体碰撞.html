@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    #canvas {
+      background-color: #000;
+      display: block;
+      margin: 30px auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 1000;
+    let H = canvas.height = 600;
+    
+    let balls = [], bounce = -1, num = 100;
+    
+    for(let i=0; i<num; i++){
+      balls.push(new Ball({
+        x: C.rp([0, W]),
+        y: C.rp([0, H]),
+        fillStyle: C.createColor(),
+        vx: C.rp([-2, 2]),
+        vy: C.rp([-2, 2]),
+        m: C.rp([1, 5], true),
+        r: Math.random() > 0.9 ? C.rp([10, 20]) : C.rp([5, 10])
+      }));
+    }
+    
+    function drawBallMove(ball, i){
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      
+      for(let j=i+1; j<num; j++){
+        C.checkBallHit(ball, balls[j]);
+      }
+      
+      C.checkBallBounce(ball, W, H, bounce);
+      
+      ball.render(ctx);
+    }
+
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      balls.forEach(drawBallMove);
+    })();
+  </script>
+</body>
+</html>

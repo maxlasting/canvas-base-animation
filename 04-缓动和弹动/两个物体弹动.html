@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 1200;
+    let H = canvas.height = 800;
+    
+    let spring = 0.03;
+    let mouse = C.getOffset(canvas);
+    let ball1_draging = false;
+    let ball2_draging = false;
+    let springLength = 200;
+    let friction = 0.9;
+    
+    const ball1 = new Ball({
+      x: C.rp([50, W - 50]),
+      y: C.rp([50, H - 50]),
+      r: 20
+    });
+    
+    const ball2 = new Ball({
+      x: C.rp([50, W - 50]),
+      y: C.rp([50, H - 50]),
+      r: 20
+    });
+    
+    canvas.addEventListener('mousedown', function (e){
+      if(ball1.isPoint(mouse)){
+        ball1_draging = true;
+      }
+      if(ball2.isPoint(mouse)){
+        ball2_draging = true;
+      }
+    });
+    
+    canvas.addEventListener('mousemove', function (e){
+      if(ball1_draging){
+        ball1.x = mouse.x;
+        ball1.y = mouse.y;
+      }
+      if(ball2_draging){
+        ball2.x = mouse.x;
+        ball2.y = mouse.y;
+      }
+    });
+    
+    canvas.addEventListener('mouseup', function (e){
+      ball1_draging = ball2_draging = false;
+    });
+    
+    function springTo(b1, b2){
+      let dx = b2.x - b1.x;
+      let dy = b2.y - b1.y;
+      let angle = Math.atan2(dy, dx);
+      let targetX = b2.x - springLength * Math.cos(angle);
+      let targetY = b2.y - springLength * Math.sin(angle);
+      
+      b1.vx += (targetX - b1.x) * spring;
+      b1.vy += (targetY - b1.y) * spring;
+      
+      b1.vx *= friction;
+      b1.vy *= friction;
+      
+      b1.x += b1.vx;
+      b1.y += b1.vy;
+    }
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      if(!ball1_draging){
+        springTo(ball1, ball2);
+      }
+      
+      if(!ball2_draging){
+        springTo(ball2, ball1);
+      }
+      
+      ctx.beginPath();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgb(235, 61, 202)';
+      ctx.lineTo(ball1.x, ball1.y);
+      ctx.lineTo(ball2.x, ball2.y);
+      ctx.stroke();
+      
+      ball1.render(ctx);
+      ball2.render(ctx);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 1200;
+    let H = canvas.height = 800;
+    
+    let spring = 0.03, friction = 0.95, g = 2.5;
+    let mouse = C.getOffset(canvas);
+    
+    const ball = new Ball({
+      x: W/2,
+      y: H/2,
+      r: 40 
+    });
+    
+    (function drawFrame(){
+      drawFrame.timer = window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      let dx = mouse.x - ball.x;
+      let dy = mouse.y - ball.y;
+      
+      let ax = dx * spring;
+      let ay = dy * spring;
+      
+      ball.vx += ax;
+      ball.vy += ay;
+      ball.vy += g;
+      
+      ball.vx *= friction;
+      ball.vy *= friction;
+      
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgb(238, 58, 166)';
+      ctx.lineTo(mouse.x, mouse.y);
+      ctx.lineTo(ball.x, ball.y);
+      ctx.stroke();
+      
+      ball.render(ctx);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 1200;
+    let H = canvas.height = 800;
+  
+    let easing = 0.05, targetX = W/2, targetY = H/2;
+    
+    const ball = new Ball({
+      x: 80,
+      y: 80,
+      r: 40
+    }).render(ctx);
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      // let dx = targetX - ball.x;
+      // let dy = targetY - ball.y;
+      // let vx = dx * easing;
+      // let vy = dy * easing;
+      // 
+      // ball.x += vx;
+      // ball.y += vy;
+      
+      ball.x += (targetX - ball.x) * easing;
+      ball.y += (targetY - ball.y) * easing;
+      
+      ball.render(ctx);
+    })();
+    
+  </script>
+</body>
+</html>

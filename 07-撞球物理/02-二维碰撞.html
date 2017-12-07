@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 600;
+    let H = canvas.height = 400;
+    
+    let bounce = -1;
+    
+    const b1 = new Ball({
+      x: C.rp([0, W], true),
+      y: C.rp([0, H], true),
+      fillStyle: 'rgb(226, 62, 111)',
+      r: 80,
+      m: 4,
+      vx: C.rp([-5, 5]),
+      vy: C.rp([-5, 5])
+    });
+    
+    const b2 = new Ball({
+      x: C.rp([0, W], true),
+      y: C.rp([0, H], true),
+      fillStyle: 'rgb(26, 159, 208)',
+      r: 60,
+      m: 2,
+      vx: C.rp([-5, 5]),
+      vy: C.rp([-5, 5])
+    });
+    
+    function checkMove(b1, b2){
+      let dx = b2.x - b1.x;
+      let dy = b2.y - b1.y;
+      let dist = Math.sqrt(dx**2 + dy**2);
+      if(dist < b1.r + b2.r){
+        let angle = Math.atan2(dy, dx);
+        let sin = Math.sin(angle);
+        let cos = Math.cos(angle);
+        
+        // 以b1为参照物，设定b1的中心点为旋转基点
+        let x1 = 0;
+        let y1 = 0;
+        let x2 = dx * cos + dy * sin;
+        let y2 = dy * cos - dx * sin;
+        
+        // 旋转b1和b2的速度
+        let vx1 = b1.vx * cos + b1.vy * sin;
+        let vy1 = b1.vy * cos - b1.vx * sin;
+        let vx2 = b2.vx * cos + b2.vy * sin;
+        let vy2 = b2.vy * cos - b2.vx * sin;
+        
+        // 求出b1和b2碰撞之后的速度
+        let vx1Final = ((b1.m - b2.m) * vx1 + 2 * b2.m * vx2) / (b1.m + b2.m);
+        let vx2Final = ((b2.m - b1.m) * vx2 + 2 * b1.m * vx1) / (b1.m + b2.m);
+        
+        // 处理两个小球碰撞之后，将它们进行归位
+        let lep = (b1.r + b2.r) - Math.abs(x2 - x1);
+        
+        x1 = x1 + (vx1Final < 0 ? -lep/2 : lep/2);
+        x2 = x2 + (vx2Final < 0 ? -lep/2 : lep/2);
+        
+        b2.x = b1.x + (x2 * cos - y2 * sin);
+        b2.y = b1.y + (y2 * cos + x2 * sin);
+        b1.x = b1.x + (x1 * cos - y1 * sin);
+        b1.y = b1.y + (y1 * cos + x1 * sin);
+        
+        b1.vx = vx1Final * cos - vy1 * sin;
+        b1.vy = vy1 * cos + vx1Final * sin;
+        b2.vx = vx2Final * cos - vy2 * sin;
+        b2.vy = vy2 * cos + vx2Final * sin;
+      }
+    }
+    
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      b1.x += b1.vx;
+      b1.y += b1.vy;
+      b2.x += b2.vx;
+      b2.y += b2.vy;
+      
+      checkMove(b1, b2);
+      
+      C.checkBallBounce(b1, W, H, bounce);
+      C.checkBallBounce(b2, W, H, bounce);
+      
+      b1.render(ctx);
+      b2.render(ctx);
+    })();
+  </script>
+</body>
+</html>

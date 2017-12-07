@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5);
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+  
+    let balls = [];
+    
+    for(let i=0; i<10; i++){
+      balls.push(new Ball({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 20 + 30,
+        fillStyle: `rgb(${55 + ~~(Math.random() * 200)}, ${55 + ~~(Math.random() * 200)}, ${55 + ~~(Math.random() * 200)})`,
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 3,
+        id: `ball:` + i
+      }));
+    }
+    
+    function ballMove(ball, index){
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      
+      if(ball.x - ball.r >= W || ball.x + ball.r <= 0 ||
+      ball.y - ball.r >= H || ball.y + ball.r <= 0){
+        balls.splice(index, 1);
+        if(balls.length){
+          console.log(`${ball.id}这个小球被移除了!`);
+        }else{
+          console.log(`所有的小球都被移除了!`);
+        }
+      }
+      
+      ball.render(ctx);
+    }
+    
+    (function move(){
+      window.requestAnimationFrame(move);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      let i = balls.length;
+      
+      while(i--){
+        ballMove(balls[i], i);
+      }
+    })();
+    
+  </script>
+</body>
+</html>

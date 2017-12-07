@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script src="../assets/components/Line.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+    
+    const line = new Line({
+      x: 100, y: 260,
+      x1: 0, y1: 0,
+      x2: 400, y2: 0,
+      rotation: C.toRad(10),
+      lineWidth: 3,
+      strokeStyle: 'rgb(227, 40, 141)'
+    });
+    
+    const ball = new Ball({
+      x: 120,
+      y: 140,
+      r: 60
+    });
+    
+    let g = 0.1, bounce = -0.8;
+    let sin = Math.sin(line.rotation), cos = Math.cos(line.rotation);
+    
+    function checkBallMove(ball){
+      // 获取小球相对于中心点的坐标
+      let rx = ball.x - line.x;
+      let ry = ball.y - line.y;
+      
+      // 对小球的坐标点进行旋转
+      let x1 = rx * cos + ry * sin;
+      let y1 = ry * cos - rx * sin;
+      
+      // 对小球的速度进行旋转
+      let vx1 = ball.vx * cos + ball.vy * sin;
+      let vy1 = ball.vy * cos - ball.vx * sin;
+      
+      // 检测小球和水平直线的碰撞
+      if(x1 + ball.r > line.x1 && x1 - ball.r < line.x2){
+        if(y1 + ball.r > 0 && vy1 > y1){
+          y1 = -ball.r;
+          vy1 *= bounce;
+        }
+        if(y1 - ball.r < 0 && vy1 < y1){
+          y1 = ball.r;
+          vy1 *= bounce;
+        }
+      }
+      
+      // 将整个系统旋转回初始的位置
+      rx = x1 * cos - y1 * sin;
+      ry = y1 * cos + x1 * sin;
+      
+      ball.vx = vx1 * cos - vy1 * sin;
+      ball.vy = vy1 * cos + vx1 * sin;
+      
+      ball.x = line.x + rx;
+      ball.y = line.y + ry;
+    }
+
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      ball.vy += g;
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      
+      // 处理和斜面之间的反弹
+      checkBallMove(ball);
+      // 处理和画布边界之间的反弹
+      C.checkBallBounce(ball, W, H, bounce);
+      
+      line.render(ctx);
+      ball.render(ctx);
+    })();
+  </script>
+</body>
+</html>

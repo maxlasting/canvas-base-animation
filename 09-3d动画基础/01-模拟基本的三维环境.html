@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+    
+    let x = 0, y = 0, z = 0;
+    let hx = W/2, hy = H/2;
+    let f1 = 200;
+    
+    const ball = new Ball({
+      r: 80
+    });
+    
+    let mouse = C.getOffset(canvas);
+    
+    window.addEventListener('keydown', function (e){
+      let keyCode = e.keyCode;
+      if(keyCode === 38) z += 5;
+      if(keyCode === 40) z -= 5;
+    });
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      ctx.clearRect(0, 0, W, H);
+      
+      if(z > -f1){
+        let scale = f1 / (f1 + z);
+        
+        x = mouse.x - hx;
+        y = mouse.y - hy;
+        
+        ball.scaleX = ball.scaleY = scale;
+        
+        ball.x = hx + x*scale;
+        ball.y = hy + y*scale;
+        
+        ball.show = true;
+      }else{
+        ball.show = false;
+      }
+      
+      ball.show && ball.render(ctx);
+    })();
+    
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+      display: block;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+    
+    let particles = [], num = 100;
+    
+    for(let i=0; i<num; i++){
+      const size = C.rp([3, 10]);
+      particles.push(new Ball({
+        x: C.rp([0, W]),
+        y: C.rp([0, H]),
+        r: size,
+        fillStyle: '#fff',
+        m: size
+      }));
+    }
+    
+    function move(ball, i){
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      for(let j=i+1; j<num; j++){
+        const target = particles[j];
+        gravitate(ball, target);
+        C.checkBallHit(ball, target);
+      }
+    }
+    
+    function gravitate(p1, p2){
+      let dx = p2.x - p1.x;
+      let dy = p2.y - p1.y;
+      let distSQ = dx**2 + dy**2;
+      let dist = Math.sqrt(distSQ);
+      let force = p1.m * p2.m / distSQ;
+      let ax = force * dx / dist;
+      let ay = force * dy / dist;
+      
+      p1.vx += ax / p1.m;
+      p1.vy += ay / p1.m;
+      p2.vx -= ax / p2.m;
+      p2.vy -= ay / p2.m;
+    }
+    
+    function draw(ball, i){
+      ball.render(ctx);
+    }
+  
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      particles.forEach(move);
+      particles.forEach(draw);
+    })();
+  </script>
+</body>
+</html>

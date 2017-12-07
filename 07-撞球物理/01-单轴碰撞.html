@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 900;
+    let H = canvas.height = 700;
+    
+    const b1 = new Ball({
+      x: 100,
+      y: H/2,
+      fillStyle: 'rgb(226, 62, 111)',
+      r: 50,
+      m: 2,
+      vx: 3
+    });
+    
+    const b2 = new Ball({
+      x: W - 100,
+      y: H/2,
+      fillStyle: 'rgb(26, 159, 208)',
+      r: 30,
+      m: 1,
+      vx: -4
+    });
+    
+    function drawBaseLine(){
+      ctx.beginPath();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgb(46, 221, 137)';
+      ctx.moveTo(0, H/2);
+      ctx.lineTo(W, H/2);
+      ctx.stroke();
+    }
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      b1.x += b1.vx;
+      b2.x += b2.vx;
+      
+      let dist = Math.abs(b1.x - b2.x);
+      
+      if(dist < b1.r + b2.r){
+        let lep = b1.r + b2.r - dist;
+        b1.x = b1.x - lep/2;
+        b2.x = b2.x + lep/2;
+        
+        let v1Final = ((b1.m - b2.m) * b1.vx + 2 * b2.m * b2.vx) / (b1.m + b2.m); 
+        let v2Final = ((b2.m - b1.m) * b2.vx + 2 * b1.m * b1.vx) / (b1.m + b2.m); 
+        
+        b1.vx = v1Final;
+        b2.vx = v2Final;
+      }
+      
+      drawBaseLine();
+      
+      b1.render(ctx);
+      b2.render(ctx);
+    })();
+  </script>
+</body>
+</html>

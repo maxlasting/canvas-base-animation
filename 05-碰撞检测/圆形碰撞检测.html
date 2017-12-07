@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 900;
+    let H = canvas.height = 700;
+    
+    let mouse = C.getOffset(canvas);
+    let activeBall = null;
+    
+    const b1 = new Ball({
+      x: 150,
+      y: 150,
+      r: 50,
+      fillStyle: 'rgb(90, 227, 140)'
+    });
+    
+    const b2 = new Ball({
+      x: 400,
+      y: 450,
+      r: 60,
+      fillStyle: 'rgb(238, 27, 27)'
+    });
+    
+    canvas.addEventListener('mousedown', function (e){
+      if(b1.isPoint(mouse)){
+        activeBall = b1;
+      }
+      if(b2.isPoint(mouse)){
+        activeBall = b2;
+      }
+    });
+    
+    canvas.addEventListener('mousemove', function (e){
+      if(activeBall){
+        activeBall.x = mouse.x;
+        activeBall.y = mouse.y;
+      }
+    });
+    
+    canvas.addEventListener('mouseup', function (e){
+      activeBall = null;
+    });
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      if(C.getDist(b1.x, b1.y, b2.x, b2.y) <= b1.r + b2.r){
+        console.log(`撞上了!`);
+      }
+      
+      b1.render(ctx);
+      b2.render(ctx);
+    })();
+  </script>
+</body>
+</html>

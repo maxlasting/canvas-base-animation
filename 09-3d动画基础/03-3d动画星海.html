@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      margin: 0;
+    }
+    canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+    
+    let balls = [], num = 500, g = 0.2, bounce = -0.8, floor = 300;
+    let f1 = 250, hx = W/2, hy = H/2;
+    
+    const ballColor = ctx.createRadialGradient(0, 0, 0, 0, 0, 10);
+    ballColor.addColorStop(0, "rgb(255, 255, 255)");
+    ballColor.addColorStop(0.3, "rgba(0, 255, 240, 1)");
+    ballColor.addColorStop(0.5, "rgba(0, 240, 255, 1)");
+    ballColor.addColorStop(0.8, "rgba(0, 110, 255, 0.8)");
+    ballColor.addColorStop(1, "rgba(0, 0, 0, 0.2)");
+    
+    for(let i=0; i<num; i++){
+      balls.push(new Ball({
+        x3d: C.rp([-W, W*2]),
+        y3d: C.rp([-H, H*2]),
+        z3d: C.rp([0, 1000]),
+        r: 10,
+        fillStyle: ballColor,
+        vz: 0.5,
+        az: -1
+      }))
+    }
+    
+    function move(ball){
+      ball.vz += ball.az;
+      ball.vz *= 0.8;
+      ball.z3d += ball.vz;
+      
+      if(ball.z3d < -f1){
+        ball.z3d += 1000;
+      }
+      if(ball.z3d > 1000 - f1){
+        ball.z3d -= 1000;
+      }
+      let scale = f1 / (f1 + ball.z3d);
+      ball.scaleX = ball.scaleY = scale;
+      ball.x = hx + ball.x3d * scale;
+      ball.y = hy + ball.y3d * scale;
+      ball.alpha = Math.min(Math.abs(scale) * 1.5, 1);
+    }
+    
+    function draw(ball){
+      ball.render(ctx);
+    }
+    
+    function zSort(a, b){
+      return b.z3d - a.z3d;
+    }
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      ctx.clearRect(0, 0, W, H);
+      
+      balls.forEach(move);
+      balls.sort(zSort);
+      balls.forEach(draw);
+    })();
+    
+  </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Box.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 900;
+    let H = canvas.height = 700;
+    
+    let mouse = C.getOffset(canvas);
+    let draged1 = false;
+    let draged2 = false;
+    let disX, disY;
+    
+    const box1 = new Box({
+      x: 50,
+      y: 50,
+      fillStyle: 'rgb(71, 226, 110)'
+    });
+    
+    const box2 = new Box({
+      x: 300,
+      y: 120
+    });
+    
+    canvas.addEventListener('mousedown', function (e){
+      if(box1.isPoint(mouse)){
+        draged1 = true;
+        disX = mouse.x - box1.x;
+        disY = mouse.y - box1.y;
+      }
+      if(box2.isPoint(mouse)){
+        draged2 = true;
+        disX = mouse.x - box2.x;
+        disY = mouse.y - box2.y;
+      }
+    });
+    
+    canvas.addEventListener('mousemove', function (e){
+      if(draged1){
+        box1.x = mouse.x - disX;
+        box1.y = mouse.y - disY;
+      }
+      if(draged2){
+        box2.x = mouse.x - disX;
+        box2.y = mouse.y - disY;
+      }
+    });
+    
+    canvas.addEventListener('mouseup', function (e){
+      draged1 = draged2 = false;
+    });
+  
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      if(C.rectDuang(box1, box2)){
+        console.log('撞上了');
+      }
+      
+      box1.render(ctx);
+      box2.render(ctx);
+    })();
+  </script>
+</body>
+</html>

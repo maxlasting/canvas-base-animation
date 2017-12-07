@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5);
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+    
+    let mouse = C.getOffset(canvas);
+    let dx = 0, dy = 0;
+    
+    let isMouseMove = false;
+    let vx = C.rp([-10, 10]), vy = -10;
+    let g = 0.2;
+    let bounce = -0.7;
+    let startX = 0, startY = 0;
+    
+    const ball = new Ball({
+      x: W/2,
+      y: H/2,
+      r: 40
+    }).render(ctx);
+    
+    canvas.addEventListener('mousedown', function (e){
+      e.preventDefault();
+      if(ball.isPoint(mouse)){
+        isMouseMove = true;
+        dx = mouse.x - ball.x;
+        dy = mouse.y - ball.y;
+        startX = ball.x;
+        startY = ball.y;
+        canvas.addEventListener('mousemove', moveBallFn);
+        canvas.addEventListener('mouseup', upBallFn);
+      }
+    });
+    
+    function moveBallFn(){
+      ball.x = mouse.x - dx;
+      ball.y = mouse.y - dy;
+    }
+    
+    function upBallFn(){
+      isMouseMove = false;
+      canvas.removeEventListener('mousemove', moveBallFn);
+      canvas.removeEventListener('mouseup', upBallFn);
+    }
+    
+    function bounceMove(){
+      vy += g;
+      ball.x += vx;
+      ball.y += vy;
+      
+      if(ball.x + ball.r >= W){
+        ball.x = W - ball.r;
+        vx *= bounce;
+      }else if(ball.x - ball.r <= 0){
+        ball.x = ball.r;
+        vx *= bounce;
+      }
+      
+      if(ball.y + ball.r >= H){
+        ball.y = H - ball.r;
+        vy *= bounce;
+      }else if(ball.y - ball.r <= 0){
+        ball.y = ball.r;
+        vy *= bounce;
+      }
+    }
+    
+    function setSpeed(){ 
+      vx = ball.x - startX;
+      vy = ball.y - startY;
+      startX = ball.x;
+      startY = ball.y;
+    }
+    
+    (function move(){
+      window.requestAnimationFrame(move);
+      ctx.clearRect(0, 0, W, H);
+      
+      if(!isMouseMove){
+        bounceMove();
+      }else{
+        setSpeed();
+      }
+      
+      ball.render(ctx);
+    })();
+    
+  </script>
+</body>
+</html>

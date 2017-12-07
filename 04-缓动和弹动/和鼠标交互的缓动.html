@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+  
+    let easing = 0.05;
+    let mouse = C.getOffset(canvas);
+    let isMouseDown = false;
+    let targetX = W/2, targetY = H/2;
+    
+    const ball = new Ball({
+      x: W/2,
+      y: H/2,
+      r: 40
+    }).render(ctx);
+    
+    canvas.addEventListener('mousedown', function (e){
+      if(ball.isPoint(mouse)){
+        isMouseDown = true;
+        canvas.addEventListener('mousemove', ballMoveFn);
+        canvas.addEventListener('mouseup', ballUpFn);
+      }
+    });
+    
+    function ballMoveFn(){
+      ball.x = mouse.x;
+      ball.y = mouse.y;
+    }
+    
+    function ballUpFn() {
+      isMouseDown = false;
+      canvas.removeEventListener('mousemove', ballMoveFn);
+      canvas.removeEventListener('mouseup', ballUpFn);
+    }
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      if(!isMouseDown){
+        let vx = (targetX - ball.x) * easing;
+        let vy = (targetY - ball.y) * easing;
+        ball.x += vx;
+        ball.y += vy;
+      }
+      
+      ball.render(ctx);
+    })();
+  </script>
+</body>
+</html>

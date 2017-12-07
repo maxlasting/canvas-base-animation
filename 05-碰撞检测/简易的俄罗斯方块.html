@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Box.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+    
+    let boxes = [], g = 0.02, activeBox = createBox();
+    
+    function createBox(){
+      const box = new Box({
+        x: C.rp([0, W]),
+        w: C.rp([20, 55]),
+        h: C.rp([20, 55]),
+        fillStyle: C.createColor()
+      });
+      boxes.push(box);
+      return box;
+    }
+    
+    document.addEventListener('keydown', function (e){
+      switch (e.keyCode) {
+        case 37:
+          activeBox.x += -5;
+          break;
+        case 39:
+          activeBox.x += 5;
+          break;
+        case 40:
+          g = 0.2;
+          break;  
+      }
+    });
+    
+    document.addEventListener('keyup', function (e){
+      g = 0.02;
+    });
+    
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      activeBox.vy += g;
+      activeBox.y += activeBox.vy;
+      
+      if(activeBox.y + activeBox.h >= H){
+        activeBox.y = H - activeBox.h;
+        activeBox = createBox();
+      }
+      
+      boxes.forEach((item) => {
+        if(item !== activeBox && C.rectDuang(item, activeBox)){
+          activeBox.y = item.y - activeBox.h;
+          activeBox = createBox();
+        }
+        item.render(ctx);
+      });
+    })();
+  </script>
+</body>
+</html>

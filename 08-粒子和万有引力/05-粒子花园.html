@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      background-color: #000;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W, H;
+    
+    let particles = [], spring = 0.0001;
+    
+    window.onresize = function (){
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      createParticles(W * H / 15000);
+    };
+    
+    window.onresize();
+    
+    function createParticles(num){
+      if(num !== particles.length){
+        particles.length = 0;
+      }
+      for(let i=0; i<num; i++){
+        let size = C.rp([3, 10]);
+        particles.push(new Ball({
+          x: C.rp([0, W]),
+          y: C.rp([0, H]),
+          fillStyle: '#fff',
+          vx: C.rp([-2, 2]),
+          vy: C.rp([-2, 2]),
+          r: size,
+          m: size
+        }));
+      }
+    }
+    
+    function move(p, i){
+      p.x += p.vx;
+      p.y += p.vy;
+      
+      for(let j=i+1; j<particles.length; j++){
+        let target = particles[j];
+        checkSpring(p, target);
+        C.checkBallHit(p, target);
+      }
+      
+      if(p.x - p.r > W){
+        p.x = -p.r;
+      }else if(p.x + p.r < 0){
+        p.x = W + p.r;
+      }
+      if(p.y - p.r > H){
+        p.y = -p.r;
+      }else if(p.y + p.r < 0){
+        p.y = H + p.r;
+      }
+    }
+    
+    function checkSpring(current, target){
+      let dx = target.x - current.x;
+      let dy = target.y - current.y;
+      let dist = Math.sqrt(dx**2 + dy**2);
+      let minDist = W > H ? W / 10 : H / 5;
+      if(dist < minDist){
+        drawLine(current, target, dist, minDist);
+        let ax = dx * spring;
+        let ay = dy * spring;
+        current.vx += ax / current.m;
+        current.vy += ay / current.m;
+        target.vx -= ax / target.m;
+        target.vy -= ay / target.m;
+      }
+    }
+    
+    function drawLine(current, target, dist, minDist){
+      ctx.save();
+      ctx.lineWidth = 2 * Math.max(0, (1 - dist / minDist));
+      ctx.globalAlpha = Math.max(0, (1 - dist / minDist));
+      ctx.strokeStyle = '#fff';
+      ctx.beginPath();
+      ctx.lineTo(current.x, current.y);
+      ctx.lineTo(target.x, target.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    function draw(p){
+      p.render(ctx);
+    }
+  
+    (function drawFrame(){
+      window.requestAnimationFrame(drawFrame);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      particles.forEach(move);
+      particles.forEach(draw);
+    })();
+  </script>
+</body>
+</html>

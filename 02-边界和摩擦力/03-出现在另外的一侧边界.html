@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5);
+      background-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Arrow.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+  
+    let vx = 0, vy = 0, vr = 0, a = 0, w = 46, h = 20, f = 0.95;
+    
+    const arrow = new Arrow({
+      x: W/2,
+      y: H/2,
+      w,
+      h
+    }).render(ctx);
+    
+    window.addEventListener('keydown', function (e){
+      switch(e.keyCode){
+        case 37:
+          vr = -5;
+          break;
+        case 39:
+          vr = 5;
+          break;
+        case 38:
+          a = 0.5;
+          break;
+      }
+    });
+    
+    window.addEventListener('keyup', function (e){
+      a = 0;
+      vr = 0;
+    });
+    
+    (function move(){
+      window.requestAnimationFrame(move);
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      arrow.rotation += C.toRad(vr);
+      let angle = arrow.rotation;
+      let ax = Math.cos(angle) * a;
+      let ay = Math.sin(angle) * a;
+      
+      vx += ax;
+      vy += ay;
+      
+      vx *= f;
+      vy *= f;
+      
+      arrow.x += vx;
+      arrow.y += vy;
+      
+      // 越界处理
+      if(arrow.x - arrow.w / 2 >= W){
+        arrow.x = 0 - arrow.w / 2;
+      }else if(arrow.x + arrow.w/2 <= 0){
+        arrow.x = W + arrow.w/2;
+      }
+      
+      arrow.render(ctx);
+    })();
+    
+  </script>
+</body>
+</html>

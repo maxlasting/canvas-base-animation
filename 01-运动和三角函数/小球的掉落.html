@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+    }
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    let W = canvas.width = 800;
+    let H = canvas.height = 600;
+  
+    class Ball2 extends Ball {
+      constructor(opt){
+        super();
+        this.vy = 0;
+        this.g = 0;
+        this.friction = 0.05;
+        this.firstMove = true;
+        Object.assign(this, opt)
+        return this;
+      }
+      move(){
+        if(!this.firstMove){
+          this.vy += this.g;
+        }
+        
+        if(this.vy > 0 && this.vy - this.friction > 0){
+          this.vy -= this.friction; 
+        }else if(this.vy < 0 && this.vy + this.friction < 0){
+          this.vy += this.friction;
+        }else{
+          this.vy = 0;
+        }
+        
+        this.y += this.vy;
+        
+        if(this.y >= H - this.r){
+          this.y = H - this.r;
+          this.vy *= -1;
+        }
+        
+        this.firstMove = false;
+        
+        return this;
+      }
+    } 
+    
+    let balls = [];
+    
+    for(let i=0; i<100; i++){
+      const b = new Ball2({
+        x: Math.random() * W,
+        y: Math.random() * (H/2),
+        g: Math.random() * 0.2 + 0.1,
+        r: Math.random() * 2 + 3,
+        fillStyle: '#' + (`00000 + ${Math.random() * 0xffffff | 0}`).substr(-6)
+      });
+      balls.push(b);
+    }
+    
+    console.log(balls);
+    
+    (function move(){
+      let id = window.requestAnimationFrame(move);
+
+      ctx.clearRect(0, 0, W, H);
+      
+      balls.forEach(function(item, i) {
+        item.move().render(ctx);
+      });
+    })();
+    
+    
+    
+    
+    
+    
+    
+    
+  
+  </script>
+</body>
+</html>
