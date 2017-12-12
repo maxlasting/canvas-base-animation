@@ -24,11 +24,7 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     
-    let W = canvas.width = window.innerWidth;
-    let H = canvas.height = window.innerHeight;
-    
-    let balls = [], num = 500, g = 0.2, bounce = -0.8, floor = 300;
-    let f1 = 250, hx = W/2, hy = H/2;
+    let W, H, hx, hy, f1 = 250, particles = [], maxZ = 1200, f = 0.8;
     
     const ballColor = ctx.createRadialGradient(0, 0, 0, 0, 0, 10);
     ballColor.addColorStop(0, "rgb(255, 255, 255)");
@@ -37,38 +33,61 @@
     ballColor.addColorStop(0.8, "rgba(0, 110, 255, 0.8)");
     ballColor.addColorStop(1, "rgba(0, 0, 0, 0.2)");
     
-    for(let i=0; i<num; i++){
-      balls.push(new Ball({
-        x3d: C.rp([-W, W*2]),
-        y3d: C.rp([-H, H*2]),
-        z3d: C.rp([0, 1000]),
-        r: 10,
-        fillStyle: ballColor,
-        vz: 0.5,
-        az: -1
-      }))
+    window.onresize = function (){
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      hx = W/2;
+      hy = H/2;
+      createParticles( W * H / 3200);
+    };
+    
+    function createParticles(num){
+      if(particles.length !== num){
+        particles = [];
+      }
+      for(let i=0; i<num; i++){
+        particles.push(new Ball({
+          x3d: C.rp([-1.5*W, 2*W]),
+          y3d: C.rp([-1.5*H, 2*H]),
+          z3d: C.rp([0, maxZ]),
+          r: 10,
+          fillStyle: ballColor,
+          // vz: C.rp([-5, -0.5]),
+          vz: C.rp([0.5, 5]),
+          // az: C.rp([-2, -0.5])
+          az: C.rp([0.5, 2])
+        }))
+      }
     }
     
-    function move(ball){
-      ball.vz += ball.az;
-      ball.vz *= 0.8;
-      ball.z3d += ball.vz;
+    window.onresize();
+    
+    function move(p){
+      p.vz += p.az;
+      p.vz *= f;
+      p.z3d += p.vz;
       
-      if(ball.z3d < -f1){
-        ball.z3d += 1000;
+      if(p.z3d < -f1){
+        x3d = C.rp([-1.5*W, 2*W]);
+        y3d = C.rp([-1.5*H, 2*H]);
+        p.z3d += maxZ;
       }
-      if(ball.z3d > 1000 - f1){
-        ball.z3d -= 1000;
+      
+      if(p.z3d > maxZ - f1){
+        x3d = C.rp([-1.5*W, 2*W]);
+        y3d = C.rp([-1.5*H, 2*H]);
+        p.z3d -= maxZ;
       }
-      let scale = f1 / (f1 + ball.z3d);
-      ball.scaleX = ball.scaleY = scale;
-      ball.x = hx + ball.x3d * scale;
-      ball.y = hy + ball.y3d * scale;
-      ball.alpha = Math.min(Math.abs(scale) * 1.5, 1);
+      
+      let scale = f1 / (f1 + p.z3d);
+      p.scaleX = p.scaleY = scale;
+      p.x = hx + p.x3d * scale;
+      p.y = hy + p.y3d * scale;
+      p.alpha = Math.min(Math.abs(scale)*1.5, 1);
     }
     
-    function draw(ball){
-      ball.render(ctx);
+    function draw(p){
+      p.render(ctx);
     }
     
     function zSort(a, b){
@@ -79,9 +98,9 @@
       window.requestAnimationFrame(drawFrame);
       ctx.clearRect(0, 0, W, H);
       
-      balls.forEach(move);
-      balls.sort(zSort);
-      balls.forEach(draw);
+      particles.forEach(move);
+      particles.forEach(zSort);
+      particles.forEach(draw);
     })();
     
   </script>
